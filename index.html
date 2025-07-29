@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmic GPA Calculator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+        
+        :root {
+            --primary: #00c6ff;
+            --secondary: #0072ff;
+            --accent: #00ffcc;
+            --dark: #0f2027;
+            --light: #f8f9fa;
+            --result-bg: rgba(15, 32, 39, 0.9);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s 0.3s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 2.8rem;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, var(--accent), transparent);
+            border-radius: 50%;
+        }
+        
+        .calculator {
+            background: rgba(15, 32, 39, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 198, 255, 0.3);
+            transition: transform 0.3s;
+        }
+        
+        .calculator:hover {
+            transform: translateY(-5px);
+        }
+        
+        .course-list {
+            margin-top: 2rem;
+        }
+        
+        .course {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(0, 114, 255, 0.1);
+            border-radius: 10px;
+            border-left: 3px solid var(--secondary);
+            transition: all 0.3s;
+        }
+        
+        .course:hover {
+            background: rgba(0, 114, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .course input {
+            flex: 1;
+            min-width: 120px;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: var(--light);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .course input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .course-name {
+            flex: 2;
+            min-width: 200px;
+        }
+        
+        .grade {
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        .credits {
+            flex: 1;
+            min-width: 80px;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 114, 255, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .result-container {
+            margin-top: 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--result-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 
+                0 0 15px rgba(0, 198, 255, 0.3),
+                inset 0 0 10px rgba(0, 198, 255, 0.2);
+            border: 1px solid rgba(0, 198, 255, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-container:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 198, 255, 0.1) 0%,
+                rgba(0, 198, 255, 0) 50%,
+                rgba(0, 198, 255, 0.1) 100%
+            );
+            z-index: 1;
+        }
+        
+        .result-container.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        .result {
+            font-size: 4rem;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 1rem 0;
+            position: relative;
+            display: inline-block;
+            z-index: 2;
+        }
+        
+        .message {
+            font-size: 1.3rem;
+            margin-top: 1rem;
+            color: var(--accent);
+            z-index: 2;
+            position: relative;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .course { flex-direction: column; }
+            .course input { width: 100%; }
+            .result { font-size: 3rem; }
+            .result-container { padding: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>COSMIC GPA CALCULATOR</h1>
+        <div class="calculator">
+            <div class="course-list" id="courseList">
+                <div class="course">
+                    <input type="text" class="course-name" placeholder="Course Name">
+                    <input type="number" class="grade" placeholder="Grade (0.0-4.0)" min="0" max="4" step="0.1">
+                    <input type="number" class="credits" placeholder="Credits" min="0" step="0.5">
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn" id="addCourse">+ ADD COURSE</button>
+                <button class="btn" id="calculate">CALCULATE GPA</button>
+                <button class="btn" id="reset">RESET</button>
+            </div>
+            
+            <div class="result-container" id="resultContainer">
+                <div class="result" id="gpaResult">0.00</div>
+                <div class="message" id="message">Enter your courses to calculate GPA</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const courseList = document.getElementById('courseList');
+        const addCourseBtn = document.getElementById('addCourse');
+        const calculateBtn = document.getElementById('calculate');
+        const resetBtn = document.getElementById('reset');
+        const gpaResult = document.getElementById('gpaResult');
+        const message = document.getElementById('message');
+        const resultContainer = document.getElementById('resultContainer');
+        
+        function addCourse() {
+            const course = document.createElement('div');
+            course.classList.add('course');
+            course.innerHTML = `
+                <input type="text" class="course-name" placeholder="Course Name">
+                <input type="number" class="grade" placeholder="Grade (0.0-4.0)" min="0" max="4" step="0.1">
+                <input type="number" class="credits" placeholder="Credits" min="0" step="0.5">
+            `;
+            
+            courseList.appendChild(course);
+            course.querySelector('.course-name').focus();
+        }
+        
+        function calculateGPA() {
+            const courses = document.querySelectorAll('.course');
+            let totalPoints = 0;
+            let totalCredits = 0;
+            let allValid = true;
+            
+            courses.forEach(course => {
+                const gradeInput = course.querySelector('.grade');
+                const creditsInput = course.querySelector('.credits');
+                const grade = parseFloat(gradeInput.value);
+                const credits = parseFloat(creditsInput.value);
+                
+                if (isNaN(grade) || isNaN(credits) || credits <= 0 || grade < 0 || grade > 4) {
+                    allValid = false;
+                    course.style.background = 'rgba(255, 50, 50, 0.1)';
+                    course.style.borderLeft = '3px solid #ff3232';
+                    
+                    setTimeout(() => {
+                        course.style.background = 'rgba(0, 114, 255, 0.1)';
+                        course.style.borderLeft = '3px solid var(--secondary)';
+                    }, 2000);
+                } else {
+                    totalPoints += grade * credits;
+                    totalCredits += credits;
+                }
+            });
+            
+            if (!allValid) {
+                showResult('Invalid Input', 'Please enter valid grades (0.0-4.0) and credits', '#ff5555');
+                return;
+            }
+            
+            if (totalCredits === 0) {
+                showResult('0.00', 'Add courses with credits to calculate', '#aaa');
+                return;
+            }
+            
+            const gpa = totalPoints / totalCredits;
+            showResult(gpa.toFixed(2), getMessage(gpa));
+        }
+        
+        function showResult(gpa, msg, color) {
+            gpaResult.textContent = gpa;
+            message.textContent = msg;
+            
+            if (color) {
+                message.style.color = color;
+            } else {
+                message.style.color = 'var(--accent)';
+            }
+            
+            resultContainer.classList.add('show');
+        }
+        
+        function getMessage(gpa) {
+            if (gpa >= 3.7) return 'Excellent! Keep up the great work!';
+            if (gpa >= 3.3) return 'Great job! You\'re doing well!';
+            if (gpa >= 3.0) return 'Good work! Room for improvement.';
+            if (gpa >= 2.7) return 'Not bad! Keep pushing forward.';
+            if (gpa >= 2.0) return 'Consider focusing more on studies.';
+            return 'Seek academic advice for improvement.';
+        }
+        
+        function resetCalculator() {
+            courseList.innerHTML = '';
+            addCourse();
+            gpaResult.textContent = '0.00';
+            message.textContent = 'Enter your courses to calculate GPA';
+            resultContainer.classList.remove('show');
+        }
+        
+        addCourseBtn.addEventListener('click', addCourse);
+        calculateBtn.addEventListener('click', calculateGPA);
+        resetBtn.addEventListener('click', resetCalculator);
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            addCourse();
+        });
+    </script>
+</body>
+</html>
